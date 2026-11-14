@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PlayFlow } from "@/components/play/PlayFlow";
 
-export const metadata: Metadata = { title: "Kickstarter · House Edge" };
+export const metadata: Metadata = { title: "Kickstarter · Upscale" };
 
 export default function PlayPage() {
   return (

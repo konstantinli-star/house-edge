@@ -8,7 +8,7 @@ const sans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 export const metadata: Metadata = {
-  title: "House Edge: put a stake on yourself",
+  title: "Upscale: put a stake on yourself",
   description:
     "Stake on your own progress in public speaking. An AI Proof Engine measures you live. In a casino the house always wins. Here the house is you.",
 };

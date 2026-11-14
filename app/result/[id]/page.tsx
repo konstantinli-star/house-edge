@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ResultView } from "@/components/result/ResultView";
 
-export const metadata: Metadata = { title: "Result · House Edge" };
+export const metadata: Metadata = { title: "Result · Upscale" };
 
 export default async function ResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

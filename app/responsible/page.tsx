@@ -5,7 +5,7 @@ import { HELPLINE } from "@/lib/safety";
 import { SafetyControls } from "@/components/responsible/SafetyControls";
 import { SelfCheck } from "@/components/responsible/SelfCheck";
 
-export const metadata: Metadata = { title: "Responsible play · House Edge" };
+export const metadata: Metadata = { title: "Responsible play · Upscale" };
 
 const BUILT_IN = [
   `18+ only, confirmed before any stake screen. Availability depends on your state.`,
@@ -25,7 +25,7 @@ export default function ResponsiblePage() {
         <p className="font-mono text-xs uppercase tracking-widest text-accent">Responsible play</p>
         <h1 className="text-3xl font-semibold tracking-tight">Stakes should motivate, not hurt</h1>
         <p className="text-muted">
-          House Edge puts money on the line to help you keep a promise to yourself. If it starts to feel like pressure
+          Upscale puts money on the line to help you keep a promise to yourself. If it starts to feel like pressure
           instead of motivation, use the tools below.
         </p>
       </header>
@@ -60,7 +60,7 @@ export default function ResponsiblePage() {
           </a>
           . Free and confidential.
         </p>
-        <p className="text-xs text-muted">House Edge gives no medical or financial advice.</p>
+        <p className="text-xs text-muted">Upscale gives no medical or financial advice.</p>
       </section>
     </div>
   );

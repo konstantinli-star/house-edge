@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ExerciseFlow } from "@/components/exercise/ExerciseFlow";
 
-export const metadata: Metadata = { title: "Today’s task · House Edge" };
+export const metadata: Metadata = { title: "Today’s task · Upscale" };
 
 export default function ExercisePage() {
   return (

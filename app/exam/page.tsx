@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ExamFlow } from "@/components/exam/ExamFlow";
 
-export const metadata: Metadata = { title: "Final exam · House Edge" };
+export const metadata: Metadata = { title: "Final exam · Upscale" };
 
 export default function ExamPage() {
   return (

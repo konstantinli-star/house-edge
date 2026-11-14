@@ -1,4 +1,4 @@
--- House Edge schema. Run in Supabase → SQL editor (or `supabase db push`).
+-- Upscale schema. Run in Supabase → SQL editor (or `supabase db push`).
 -- Players are Supabase auth users (anonymous guests included).
 -- Money rows are written only by the server (service role) after Stripe confirms
 -- a TEST-MODE payment; users can read their own rows but never write them.

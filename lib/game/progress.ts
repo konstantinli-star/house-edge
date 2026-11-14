@@ -5,9 +5,9 @@ import type { TakeSummary } from "./baseline";
 import type { Entry } from "./entry";
 
 const KEYS = {
-  adult: "house-edge:adult-confirmed",
-  takes: "house-edge:baseline-takes",
-  entries: "house-edge:entries",
+  adult: "upscale:adult-confirmed",
+  takes: "upscale:baseline-takes",
+  entries: "upscale:entries",
 } as const;
 
 function read<T>(key: string, fallback: T): T {

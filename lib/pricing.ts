@@ -1,7 +1,7 @@
 // Prices shown on /pricing. Money flows only in Stripe test mode.
 
 export const SUBSCRIPTION = {
-  name: "House Edge subscription",
+  name: "Upscale subscription",
   priceCents: 999,
   commissionRate: 0,
   maxGames: 3,
@@ -12,7 +12,7 @@ export const EXTRAS = [
   { name: "1:1 coaching", price: "$49–99", detail: "A coach reviews your recordings with you" },
 ] as const;
 
-const KEY = "house-edge:subscription";
+const KEY = "upscale:subscription";
 
 export type StoredSubscription = { since: string; sessionId: string };
 

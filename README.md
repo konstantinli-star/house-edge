@@ -1,4 +1,4 @@
-# House Edge
+# Upscale
 
 **Put a stake on yourself to master a skill.** In a casino the house always wins. Here the house is you.
 

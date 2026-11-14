@@ -20,7 +20,7 @@ export type SafetySettings = {
   pendingLimit: { cents: number | null; effectiveAt: string } | null;
 };
 
-const KEY = "house-edge:safety";
+const KEY = "upscale:safety";
 const DEFAULTS: SafetySettings = { selfExcludedAt: null, stakeLimitCents: null, pendingLimit: null };
 
 export function loadSafety(now = new Date()): SafetySettings {

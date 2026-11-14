@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DemoPlayer } from "@/components/demo/DemoPlayer";
 
-export const metadata: Metadata = { title: "Jake’s 30 days · House Edge" };
+export const metadata: Metadata = { title: "Jake’s 30 days · Upscale" };
 
 export default function DemoPage() {
   return (

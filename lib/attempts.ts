@@ -15,7 +15,7 @@ export type Attempt = {
   createdAt: string;
 };
 
-const KEY = "house-edge:attempts";
+const KEY = "upscale:attempts";
 
 // Tokens are only needed for on-screen highlighting; the transcript is kept instead.
 export function withoutTokens(metrics: SpeechMetrics): Attempt["metrics"] {

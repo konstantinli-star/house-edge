@@ -20,7 +20,7 @@ export const MAX_RATED_TASKS_PER_DAY = 3; // no endless sessions
 export const DAILY_TARGET_TASKS = 2;
 export const JUMP_LIMIT = 120; // rating rise within 7 days that triggers a control measurement
 
-const KEY = "house-edge:journal";
+const KEY = "upscale:journal";
 
 export function loadJournal(entryId: string): PracticeRecord[] {
   try {

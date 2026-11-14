@@ -7,7 +7,7 @@ import { TestModeBanner } from "@/components/play/TestModeBanner";
 import { TestCard } from "@/components/play/TestCard";
 import { SubscribeButton } from "@/components/pricing/SubscribeButton";
 
-export const metadata: Metadata = { title: "Pricing · House Edge" };
+export const metadata: Metadata = { title: "Pricing · Upscale" };
 
 export default function PricingPage() {
   return (

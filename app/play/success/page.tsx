@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ConfirmEntry } from "@/components/play/ConfirmEntry";
 
-export const metadata: Metadata = { title: "You’re in · House Edge" };
+export const metadata: Metadata = { title: "You’re in · Upscale" };
 
 export default function PlaySuccessPage() {
   return (

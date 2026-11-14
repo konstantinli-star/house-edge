@@ -40,7 +40,7 @@ export function ReminderOptIn({ gameEndDate, practicedToday }: { gameEndDate: st
   function downloadCalendar() {
     const ics = reminderIcs(prefs.time, gameEndDate, `${window.location.origin}/exercise`);
     const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
-    const a = Object.assign(document.createElement("a"), { href: url, download: "house-edge-practice.ics" });
+    const a = Object.assign(document.createElement("a"), { href: url, download: "upscale-practice.ics" });
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -83,7 +83,7 @@ export function ReminderOptIn({ gameEndDate, practicedToday }: { gameEndDate: st
       <p className="text-xs text-muted">
         {blocked
           ? "Notifications are blocked for this site. Allow them in your browser settings, or use the calendar reminder."
-          : "Browser notifications arrive while House Edge is open in a tab. The calendar reminder works everywhere."}
+          : "Browser notifications arrive while Upscale is open in a tab. The calendar reminder works everywhere."}
       </p>
     </section>
   );

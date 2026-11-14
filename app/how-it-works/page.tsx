@@ -5,7 +5,7 @@ import { PayoutFormulas } from "@/components/info/PayoutFormulas";
 import { PayoutTable } from "@/components/info/PayoutTable";
 import { Roadmap } from "@/components/info/Roadmap";
 
-export const metadata: Metadata = { title: "How it works · House Edge" };
+export const metadata: Metadata = { title: "How it works · Upscale" };
 
 const STEPS = [
   ["Measure", "Speak for a minute. The Proof Engine measures fillers, pace, pauses and vocal variety from your own voice."],
@@ -29,7 +29,7 @@ export default function HowItWorksPage() {
         <p className="font-mono text-xs uppercase tracking-widest text-accent">How it works</p>
         <h1 className="text-3xl font-semibold tracking-tight">A stake on yourself, judged by evidence</h1>
         <p className="text-muted">
-          Courses are easy to quit because nothing happens when you do. House Edge adds a stake, measures your progress
+          Courses are easy to quit because nothing happens when you do. Upscale adds a stake, measures your progress
           objectively, and pays the people who keep going.
         </p>
       </header>

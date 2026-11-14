@@ -1,10 +1,10 @@
 // Daily practice reminder (return mechanic), with no server push needed:
-// 1) a browser notification at the chosen time while a House Edge tab is open;
+// 1) a browser notification at the chosen time while a Upscale tab is open;
 // 2) a daily recurring calendar event (.ics) that works everywhere.
 
 export type ReminderPrefs = { enabled: boolean; time: string }; // "HH:MM" local
 
-const KEY = "house-edge:reminder";
+const KEY = "upscale:reminder";
 const DEFAULT: ReminderPrefs = { enabled: false, time: "19:00" };
 
 export function loadReminder(): ReminderPrefs {
@@ -45,9 +45,9 @@ export function scheduleReminder(prefs: ReminderPrefs, practicedToday: () => boo
   if (!prefs.enabled || !notificationsSupported() || Notification.permission !== "granted") return () => {};
   const id = window.setTimeout(() => {
     if (!practicedToday()) {
-      new Notification("House Edge: today’s practice", {
+      new Notification("Upscale: today’s practice", {
         body: "Two short speaking tasks keep your streak and your goal on track.",
-        tag: "house-edge-daily",
+        tag: "upscale-daily",
       });
     }
   }, msUntil(prefs.time));
@@ -62,20 +62,20 @@ export function reminderIcs(time: string, untilDate: string, url: string): strin
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//House Edge//Practice reminder//EN",
+    "PRODID:-//Upscale//Practice reminder//EN",
     "BEGIN:VEVENT",
-    `UID:house-edge-daily-${ymd(today)}@house-edge`,
+    `UID:upscale-daily-${ymd(today)}@upscale`,
     `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").slice(0, 15)}Z`,
     `DTSTART:${ymd(today)}T${h}${m}00`,
     "DURATION:PT15M",
     `RRULE:FREQ=DAILY;UNTIL=${untilDate.replace(/-/g, "")}T235959`,
-    "SUMMARY:House Edge: daily speaking practice",
+    "SUMMARY:Upscale: daily speaking practice",
     `DESCRIPTION:Two short timed tasks (10–15 min). ${url}`,
     `URL:${url}`,
     "BEGIN:VALARM",
     "TRIGGER:PT0M",
     "ACTION:DISPLAY",
-    "DESCRIPTION:House Edge practice",
+    "DESCRIPTION:Upscale practice",
     "END:VALARM",
     "END:VEVENT",
     "END:VCALENDAR",

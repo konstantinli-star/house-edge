@@ -1,7 +1,7 @@
 export function UnsupportedNotice({ support }: { support: "no-mic" | "no-transcript" }) {
   return (
     <Notice title="This browser can’t run the speech test">
-      Open House Edge in <strong>Chrome</strong> or <strong>Edge</strong> on a computer or phone with a microphone.
+      Open Upscale in <strong>Chrome</strong> or <strong>Edge</strong> on a computer or phone with a microphone.
       {support === "no-transcript" && " Your browser has no built-in speech recognition."}
     </Notice>
   );

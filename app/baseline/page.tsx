@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { BaselineFlow } from "@/components/baseline/BaselineFlow";
 
-export const metadata: Metadata = { title: "60-second Speaker Rating · House Edge" };
+export const metadata: Metadata = { title: "60-second Speaker Rating · Upscale" };
 
 export default function BaselinePage() {
   return (

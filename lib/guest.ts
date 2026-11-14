@@ -11,8 +11,8 @@ export type GuestSession = {
   backend: "supabase" | "local";
 };
 
-const STORAGE_KEY = "house-edge:guest";
-export const GUEST_EVENT = "house-edge:guest-changed";
+const STORAGE_KEY = "upscale:guest";
+export const GUEST_EVENT = "upscale:guest-changed";
 
 export function readGuest(): GuestSession | null {
   try {

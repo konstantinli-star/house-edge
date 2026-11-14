@@ -10,7 +10,7 @@ export function Header() {
           <span className="grid size-6 place-items-center rounded bg-accent font-mono text-xs text-accent-ink">
             HE
           </span>
-          House Edge
+          Upscale
         </Link>
         {/* Desktop only; on phones the same links are in the footer. */}
         <nav aria-label="Main" className="hidden items-center gap-5 text-sm text-muted lg:flex">

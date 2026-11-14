@@ -42,7 +42,7 @@ export default function Landing() {
             You quit 3 courses. What if your $100 was on the line?
           </h1>
           <p className="text-lg text-muted">
-            House Edge lets you put a stake on yourself. An AI Proof Engine measures how you speak, live in your
+            Upscale lets you put a stake on yourself. An AI Proof Engine measures how you speak, live in your
             browser. Hit your goal and you get your stake back, plus a share of what others left behind.
           </p>
           <blockquote className="border-l-2 border-accent pl-4 text-sm italic text-muted">
