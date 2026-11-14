@@ -5,12 +5,18 @@ import type { Baseline, Goal } from "@/lib/game/baseline";
 import { loadEntries } from "@/lib/game/progress";
 import { formatUsd, KICKSTARTER, tierAvailable } from "@/lib/game/rules";
 import { guestAuthHeader, startGuest } from "@/lib/guest";
+import { isSelfExcluded, loadSafety, withinLimit } from "@/lib/safety";
+import Link from "next/link";
 import { TestCard } from "./TestCard";
 
 // Goal from the baseline, tier picker, price breakdown, then Stripe test checkout.
 export function StakeStep({ baseline, goal }: { baseline: Baseline; goal: Goal }) {
   const gamesPlayed = loadEntries().length;
-  const [stake, setStake] = useState<number>(KICKSTARTER.firstStakeMaxCents);
+  const safety = loadSafety();
+  const available = (cents: number) => tierAvailable(cents, gamesPlayed) && withinLimit(safety, cents);
+  // Default: the highest allowed tier up to the first-game cap.
+  const defaultStake = [...KICKSTARTER.tiersCents].reverse().find((c) => c <= KICKSTARTER.firstStakeMaxCents && available(c));
+  const [stake, setStake] = useState<number>(defaultStake ?? KICKSTARTER.tiersCents[0]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,6 +39,23 @@ export function StakeStep({ baseline, goal }: { baseline: Baseline; goal: Goal }
     }
   }
 
+  if (isSelfExcluded(safety)) {
+    return (
+      <div className="flex flex-col gap-6">
+        <GoalCard baseline={baseline} goal={goal} />
+        <div role="note" className="flex flex-col gap-2 rounded-lg border border-warn/40 bg-surface p-5">
+          <h2 className="font-medium text-warn">Stakes are turned off</h2>
+          <p className="text-sm text-muted">
+            You chose self-exclusion. The free Speaker Rating, practice and Jake’s demo stay available.
+          </p>
+          <Link href="/responsible" className="w-fit text-sm text-accent hover:underline">
+            Responsible play settings
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <GoalCard baseline={baseline} goal={goal} />
@@ -41,23 +64,24 @@ export function StakeStep({ baseline, goal }: { baseline: Baseline; goal: Goal }
         <legend className="mb-2 font-mono text-sm text-accent">choose your stake</legend>
         <div className="grid grid-cols-3 gap-3">
           {KICKSTARTER.tiersCents.map((cents) => {
-            const available = tierAvailable(cents, gamesPlayed);
+            const allowed = available(cents);
+            const reason = !tierAvailable(cents, gamesPlayed) ? "after your first game" : "over your limit";
             return (
               <label
                 key={cents}
-                className={`flex cursor-pointer flex-col items-center gap-1 rounded-lg border p-4 has-[:checked]:border-accent has-[:checked]:bg-raised ${available ? "border-line" : "cursor-not-allowed border-line opacity-50"}`}
+                className={`flex cursor-pointer flex-col items-center gap-1 rounded-lg border p-4 has-[:checked]:border-accent has-[:checked]:bg-raised ${allowed ? "border-line" : "cursor-not-allowed border-line opacity-50"}`}
               >
                 <input
                   type="radio"
                   name="stake"
                   value={cents}
                   checked={stake === cents}
-                  disabled={!available}
+                  disabled={!allowed}
                   onChange={() => setStake(cents)}
                   className="sr-only"
                 />
                 <span className="font-mono text-2xl">{formatUsd(cents)}</span>
-                {!available && <span className="text-center text-xs text-muted">after your first game</span>}
+                {!allowed && <span className="text-center text-xs text-muted">{reason}</span>}
               </label>
             );
           })}

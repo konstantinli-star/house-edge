@@ -18,7 +18,8 @@ A 30-day public-speaking game: you commit a stake on your own goal, an AI Proof 
 | M4 | Daily tasks (adaptive difficulty, Elo rating), dashboard: streak, weekly goal + recovery, rating chart, payout forecast (simulated pool), community feed, reminders | ✅ |
 | M5 | Final exam (camera + mic, eye contact via MediaPipe, fullscreen, flags), settlement with the real payout function, result page with before/after, payout breakdown and calculator, one appeal per game | ✅ |
 | M6 | Demo mode: Jake's 30 days replayed on a virtual clock (~1 min) through the real scoring, rating, calendar, exam and payout code | ✅ |
-| M7–M8 | Safeguard pages, pricing, how-it-works, polish | planned |
+| M7 | `/responsible` (built-in limits, personal stake limit, self-exclusion enforced by the checkout, self-check, helpline), `/how-it-works` (formula, 100-player table, conflict of interest, roadmap), `/pricing` (Stripe test-mode subscription checkout), site navigation | ✅ |
+| M8 | Polish and cuts, full self-test as the jury | planned |
 
 ## Final exam
 
@@ -33,6 +34,13 @@ A 30-day public-speaking game: you commit a stake on your own goal, an AI Proof 
 **Scale.** Every metric maps to 0–100 with exactly **50 at the exam threshold** (fillers 3/min, pace at the band edge, eye contact 60%, 2.5 semitones of pitch spread), using `100 / (1 + ratio^k)`; struggling speakers sit near 30–35 and 100 is reserved for excellent (`lib/proof/score.ts`). The composite is a weighted mean (fillers 35%, pace 25%, eye contact 25%, variety 15%; unmeasured metrics skipped) and the rating is R = 400 + 12 × composite, so **1000 = meets the exam bar**. Jake's day-1 numbers (9 fillers/min, 187 wpm, 31% eye contact) land at ~812 by construction.
 
 **Updates.** Each daily task has a difficulty D (800–1400) from its filler limit, time limit and topic level (`lib/game/tasks.ts`), generated just above the player's rating. The attempt gets its own performance rating on the same scale (scaled down if under 80% of the time was used), and scores P = 1 / (1 + 10^((D − perf)/400)). Expected E = 1 / (1 + 10^((D − R)/400)); R′ = R + 32·(P − E) (`lib/game/rating.ts`). Performing at your level changes nothing, so the rating converges to how you actually speak; easy tasks pay little and cost a lot when failed. Max 3 rated tasks a day. A rise of more than 120 in 7 days triggers an unscheduled control measurement with a strict liveness check.
+
+## Responsible play
+
+- 18+ gate before any stake screen; stakes $50 / $100 / $250 only, first game ≤ $100; one active game; max 3 rated tasks a day; no credit, doubling or paid extras that change odds.
+- **Personal stake limit** (`lib/safety.ts`): lowering applies at once, raising or removing waits 24 hours.
+- **Self-exclusion**: stored on the account (`/api/player/self-exclusion`) and enforced by `/api/checkout` (403), so it holds in any browser; free tools stay open; lifting it needs a 7-day pause.
+- **Helpline**: the spec named 1-800-GAMBLER, but NCPG's site (checked Nov 2026) now lists **1-800-MY-RESET (1-800-697-3738)** for call/text and chat at ncpgambling.org/chat, so the app uses that.
 
 ## Demo mode
 
