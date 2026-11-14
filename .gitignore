@@ -10,3 +10,5 @@ next-env.d.ts
 .DS_Store
 house-edge-build-prompt.md
 public/__dev/
+.env*
+!.env.example
