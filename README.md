@@ -7,7 +7,7 @@ A 30-day public-speaking game for US adults 25–45. You commit a stake on your 
 > **Test mode only. No real money moves.** Stripe runs with test keys; every payout is a test-mode ledger entry. 18+.
 
 - **Live:** https://house-edge-flax.vercel.app (no sign-up; use Chrome or Edge for the microphone)
-- **Repo:** https://github.com/konstantinli-star/house-edge
+- **Repo:** https://github.com/konstantinli-star/upscale
 
 ## Jury path (about 10 minutes)
 
