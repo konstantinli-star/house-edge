@@ -13,6 +13,13 @@ export const EXAM = {
 
 export const EXAM_DIFFICULTY = taskDifficulty(EXAM.fillerLimitPerMin, EXAM.limitSec, EXAM.topicLevel);
 
+// The exam as a rated task (for the rating update).
+export const EXAM_TASK = {
+  fillerLimitPerMin: EXAM.fillerLimitPerMin,
+  timeLimitSec: EXAM.limitSec,
+  difficulty: EXAM_DIFFICULTY,
+} as const;
+
 export type ExamFlags = {
   livenessPhraseMissing?: boolean;
   leftTab?: boolean;

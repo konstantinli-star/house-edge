@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { saveAttempt, withoutTokens } from "@/lib/attempts";
-import { EXAM, EXAM_DIFFICULTY, type ExamFlags, type ExamInput } from "@/lib/game/exam";
+import { EXAM, EXAM_DIFFICULTY, EXAM_TASK, type ExamFlags, type ExamInput } from "@/lib/game/exam";
 import { addRecord } from "@/lib/game/journal";
 import { saveEntry } from "@/lib/game/progress";
 import { performanceScore, rateAttempt } from "@/lib/game/rating";
@@ -91,7 +91,7 @@ export function ExamFlow() {
     const rating = rateAttempt(
       game.rating,
       EXAM_DIFFICULTY,
-      performanceScore(metrics, { fillerLimitPerMin: EXAM.fillerLimitPerMin, timeLimitSec: EXAM.limitSec }),
+      performanceScore({ ...metrics, eyeContactPct: input.eyeContactPct }, EXAM_TASK),
     );
     const attemptId = crypto.randomUUID();
     const takenAt = new Date().toISOString();

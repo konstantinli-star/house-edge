@@ -27,20 +27,33 @@ const WEIGHTS = { fillers: 0.35, pace: 0.25, eyeContact: 0.25, variety: 0.15 };
 
 const clamp = (n: number, lo = 0, hi = 100) => Math.min(hi, Math.max(lo, n));
 
-// 100 at ≤ 1 filler/min, 0 at ≥ 12/min.
-export const fillerScore = (perMin: number) => clamp(((12 - perMin) / 11) * 100);
+// Every metric maps to 0–100 with exactly 50 at the exam threshold, so a
+// composite of 50 (Speaker Rating 1000) means "meets the bar". 100 is reserved
+// for excellent; scores fall off gently, so a struggling speaker sits near 30–35.
+// score = 100 / (1 + ratio^k), where ratio = 1 at the threshold.
+const falloff = (ratio: number, k: number) => 100 / (1 + Math.max(ratio, 0) ** k);
 
-// 100 inside the target band, losing 100 points per 60 wpm outside it.
+// Steepness: chosen so that 3× worse than the threshold scores ~34 (Jake's start).
+const K = { fillers: 0.6, pace: 0.82, eye: 1, variety: 1.5 };
+
+// Vocal variety: 2.5 semitones of pitch spread is "some variety" (score 50).
+export const VARIETY_TARGET_ST = 2.5;
+
+// 50 at 3 fillers/min, 100 at none.
+export const fillerScore = (perMin: number) => falloff(perMin / TARGETS.maxFillersPerMin, K.fillers);
+
+// 100 in the middle of the 130–165 band, 50 at its edges.
 export function paceScore(wpm: number) {
-  const outside = wpm < TARGETS.paceMin ? TARGETS.paceMin - wpm : wpm > TARGETS.paceMax ? wpm - TARGETS.paceMax : 0;
-  return clamp(100 - (outside / 60) * 100);
+  const center = (TARGETS.paceMin + TARGETS.paceMax) / 2;
+  const halfBand = (TARGETS.paceMax - TARGETS.paceMin) / 2;
+  return falloff(Math.abs(wpm - center) / halfBand, K.pace);
 }
 
-// Pitch spread: ≤ 1 semitone sounds flat (0), ≥ 4 semitones sounds lively (100).
-export const varietyScore = (st: number) => clamp(((st - 1) / 3) * 100);
+// 50 at 2.5 semitones of pitch spread; flat delivery scores low.
+export const varietyScore = (st: number) => falloff(VARIETY_TARGET_ST / Math.max(st, 0.1), K.variety);
 
-// 100 at ≥ 80% eye contact, 0 at ≤ 10%.
-export const eyeContactScore = (pct: number) => clamp(((pct - 10) / 70) * 100);
+// 50 at 60% eye contact.
+export const eyeContactScore = (pct: number) => falloff(TARGETS.minEyeContactPct / Math.max(pct, 1), K.eye);
 
 // Weighted average over the metrics we actually measured (missing ones are skipped).
 export function scoreSpeech(input: ScoreInput): Scores {

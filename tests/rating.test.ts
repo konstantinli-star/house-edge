@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { expectedScore, performanceScore, rateAttempt } from "@/lib/game/rating";
+import { attemptRating, expectedScore, performanceScore, rateAttempt } from "@/lib/game/rating";
 import { generateTask, taskDifficulty } from "@/lib/game/tasks";
 
-const task = { fillerLimitPerMin: 4, timeLimitSec: 60 };
+const task = { fillerLimitPerMin: 4, timeLimitSec: 60, difficulty: 1000 };
 const good = { fillersPerMin: 1, wpm: 150, pitchVariabilitySt: 3.5, speakingSec: 58 };
 const bad = { fillersPerMin: 10, wpm: 200, pitchVariabilitySt: 1, speakingSec: 20 };
 
@@ -28,9 +28,18 @@ describe("Elo rating", () => {
     expect(rateAttempt(1100, 850, 0.3).delta).toBeLessThan(-15);
   });
 
-  it("scores performance against the task's limits", () => {
-    expect(performanceScore(good, task)).toBeGreaterThan(0.9);
-    expect(performanceScore(bad, task)).toBeLessThan(0.2);
+  it("scores performance as the attempt's rating vs the task difficulty", () => {
+    expect(performanceScore(good, task)).toBeGreaterThan(0.6);
+    expect(performanceScore(bad, task)).toBeLessThan(0.1);
+  });
+
+  it("penalises using too little of the task's time", () => {
+    expect(attemptRating({ ...good, speakingSec: 20 }, task)).toBeLessThan(attemptRating(good, task) - 150);
+  });
+
+  it("does not move the rating when you perform exactly at your level", () => {
+    const R = attemptRating(good, task);
+    expect(rateAttempt(R, task.difficulty, performanceScore(good, task)).delta).toBe(0);
   });
 });
 

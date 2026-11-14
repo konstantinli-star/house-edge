@@ -1,10 +1,13 @@
 // Speaker Rating updates, chess-puzzle style.
-// Each task has a difficulty D (800–1400). The attempt earns a performance
-// score P in [0, 1] against that task's own limits. Expected score
-// E = 1 / (1 + 10^((D − R) / 400)); new rating R' = R + K·(P − E).
-// Easy tasks give little (E is high); failing them costs a lot. Hard tasks pay.
+// Each task has a difficulty D (800–1400). The attempt gets its own
+// performance rating on the same scale as the Speaker Rating
+// (400 + 12 × composite score), and scores P = 1 / (1 + 10^((D − perf) / 400)).
+// Expected E = 1 / (1 + 10^((D − R) / 400)); new rating R' = R + K·(P − E).
+// Performing at your level changes nothing; better performance raises the
+// rating, and the rating converges to how you actually speak. Easy tasks pay
+// little and cost a lot when failed, so the rating can't be farmed.
 
-import { paceScore, varietyScore } from "@/lib/proof/score";
+import { initialRating, scoreSpeech } from "@/lib/proof/score";
 
 export const K_FACTOR = 32;
 export const MIN_DIFFICULTY = 800;
@@ -19,24 +22,19 @@ export type AttemptMeasures = {
   wpm: number;
   pitchVariabilitySt: number | null;
   speakingSec: number;
+  eyeContactPct?: number | null; // exam only (camera)
 };
 
-const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
+// The attempt's own rating: composite score, scaled down if the speaker used
+// less than 80% of the task's time (a 15-second answer can't show much).
+export function attemptRating(m: AttemptMeasures, task: TaskLimits): number {
+  const { composite } = scoreSpeech(m);
+  const timeUsed = Math.min(1, m.speakingSec / (0.8 * task.timeLimitSec));
+  return initialRating(composite * timeUsed);
+}
 
-// Performance against this task: fillers vs the task's limit weigh most.
-export function performanceScore(m: AttemptMeasures, task: TaskLimits): number {
-  // 1 at or under the limit, 0 at twice the limit.
-  const fillers = clamp01((2 * task.fillerLimitPerMin - m.fillersPerMin) / task.fillerLimitPerMin);
-  const pace = paceScore(m.wpm) / 100;
-  const duration = clamp01(m.speakingSec / (0.8 * task.timeLimitSec)); // must use most of the time
-  const parts: [number, number][] = [
-    [fillers, 0.45],
-    [pace, 0.3],
-    [duration, 0.1],
-  ];
-  if (m.pitchVariabilitySt != null) parts.push([varietyScore(m.pitchVariabilitySt) / 100, 0.15]);
-  const weight = parts.reduce((a, [, w]) => a + w, 0);
-  return Math.round((parts.reduce((a, [v, w]) => a + v * w, 0) / weight) * 1000) / 1000;
+export function performanceScore(m: AttemptMeasures, task: TaskLimits & { difficulty: number }): number {
+  return Math.round(expectedScore(attemptRating(m, task), task.difficulty) * 1000) / 1000;
 }
 
 export type RatingChange = { before: number; after: number; delta: number; expected: number; performance: number };
