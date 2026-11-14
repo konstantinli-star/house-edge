@@ -24,13 +24,14 @@ export async function GET(req: Request) {
   const meta = session.metadata ?? {};
   const baseline = JSON.parse(meta.baseline ?? "null") as Baseline;
   const stakeCents = Number(meta.stake_cents);
+  const commissionRate = meta.commission_rate === "0" ? 0 : undefined; // undefined = open-game rate
   const admin = getSupabaseAdmin();
 
   if (!admin || !meta.player_id) {
-    return Response.json({ entry: buildEntry(session.id, stakeCents, baseline, "local") });
+    return Response.json({ entry: buildEntry(session.id, stakeCents, baseline, "local", commissionRate) });
   }
 
-  const draft = buildEntry(session.id, stakeCents, baseline, "supabase");
+  const draft = buildEntry(session.id, stakeCents, baseline, "supabase", commissionRate);
   const { data: game, error: gameError } = await admin.from("games").select("id").eq("slug", GAME_SLUG).single();
   if (gameError) return Response.json({ error: "Game not found. Run the database migration." }, { status: 500 });
 

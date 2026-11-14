@@ -63,10 +63,15 @@ function projectedPool(pool: SimulatedPlayer[], day: number) {
 }
 
 // "If you finish" forecast with the real payout function.
-export function payoutForecast(pool: SimulatedPlayer[], day: number, you: { stakeCents: number }): Forecast {
+export function payoutForecast(
+  pool: SimulatedPlayer[],
+  day: number,
+  you: { stakeCents: number },
+  commissionRate = OPEN_GAME_COMMISSION,
+): Forecast {
   const { players, active, winnersCount } = projectedPool(pool, day);
   const all = [...players, { id: "you", stakeCents: you.stakeCents, won: true }];
-  const s = settlePool(all, OPEN_GAME_COMMISSION);
+  const s = settlePool(all, commissionRate);
   return {
     payoutCents: s.payouts.you,
     stakeCents: you.stakeCents,
@@ -81,10 +86,15 @@ export function payoutForecast(pool: SimulatedPlayer[], day: number, you: { stak
 export type FinalSettlement = Settlement & { yourPayoutCents: number; winners: number; players: number };
 
 // End of game: the simulated pool's final outcomes plus the player's real result.
-export function finalSettlement(pool: SimulatedPlayer[], days: number, you: { stakeCents: number; won: boolean }): FinalSettlement {
+export function finalSettlement(
+  pool: SimulatedPlayer[],
+  days: number,
+  you: { stakeCents: number; won: boolean },
+  commissionRate = OPEN_GAME_COMMISSION,
+): FinalSettlement {
   const { players, winnersCount } = projectedPool(pool, days);
   const all = [...players, { id: "you", stakeCents: you.stakeCents, won: you.won }];
-  const s = settlePool(all, OPEN_GAME_COMMISSION);
+  const s = settlePool(all, commissionRate);
   return { ...s, yourPayoutCents: s.payouts.you ?? 0, winners: winnersCount + (you.won ? 1 : 0), players: all.length };
 }
 

@@ -14,10 +14,10 @@ export const APPEAL_REASONS = [
   "Technical problem during the exam",
 ] as const;
 
-export function settlementFor(stakeCents: number, exam: ExamInput) {
+export function settlementFor(stakeCents: number, exam: ExamInput, commissionRate: number = KICKSTARTER.commissionRate) {
   const outcome = evaluateExam(exam);
   const won = outcome.status === "won";
-  const settlement = finalSettlement(simulatedPool(GAME_SLUG), KICKSTARTER.days, { stakeCents, won });
+  const settlement = finalSettlement(simulatedPool(GAME_SLUG), KICKSTARTER.days, { stakeCents, won }, commissionRate);
   // Under review: nothing is paid until the review is done.
   const payoutCents = outcome.status === "appeal_review" ? null : settlement.yourPayoutCents;
   return { outcome, settlement, payoutCents };
@@ -26,7 +26,7 @@ export function settlementFor(stakeCents: number, exam: ExamInput) {
 type Auth = () => Promise<Record<string, string>>;
 
 export async function settleEntry(entry: Entry, exam: Omit<ExamRecord, "outcome">, authHeader: Auth): Promise<Entry> {
-  const { outcome, payoutCents } = settlementFor(entry.stakeCents, exam.input);
+  const { outcome, payoutCents } = settlementFor(entry.stakeCents, exam.input, entry.goal.commissionRate);
   let status: Entry["status"] = outcome.status;
   let payout = payoutCents;
 

@@ -15,7 +15,7 @@ export function SubscribeButton() {
       fetch(`/api/checkout/subscription/confirm?session_id=${encodeURIComponent(sessionId)}`)
         .then(async (r) => {
           if (!r.ok) throw new Error(((await r.json()) as { error?: string }).error);
-          saveSubscription();
+          saveSubscription(sessionId);
           setStatus("active");
           window.history.replaceState(null, "", "/pricing");
         })

@@ -6,6 +6,7 @@ import { loadEntries } from "@/lib/game/progress";
 import { formatUsd, KICKSTARTER, tierAvailable } from "@/lib/game/rules";
 import { guestAuthHeader, startGuest } from "@/lib/guest";
 import { isSelfExcluded, loadSafety, withinLimit } from "@/lib/safety";
+import { loadSubscription } from "@/lib/pricing";
 import Link from "next/link";
 import { TestCard } from "./TestCard";
 
@@ -28,7 +29,13 @@ export function StakeStep({ baseline, goal }: { baseline: Baseline; goal: Goal }
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(await guestAuthHeader()) },
-        body: JSON.stringify({ stakeCents: stake, baseline, adultConfirmed: true, gamesPlayed }),
+        body: JSON.stringify({
+          stakeCents: stake,
+          baseline,
+          adultConfirmed: true,
+          gamesPlayed,
+          subscriptionSessionId: loadSubscription()?.sessionId,
+        }),
       });
       const data = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !data.url) throw new Error(data.error ?? "Checkout is unavailable right now.");
@@ -94,8 +101,10 @@ export function StakeStep({ baseline, goal }: { baseline: Baseline; goal: Goal }
         <div className="my-1 border-t border-line" />
         <Line label="total today" value={formatUsd(stake + KICKSTARTER.cardFeeCents)} strong />
         <p className="mt-2 font-sans text-xs text-muted">
-          Players who reach the goal split the stakes of those who don’t, in proportion to their stakes. Our{" "}
-          {KICKSTARTER.commissionRate * 100}% fee comes only out of that money; we never take from a winner’s own stake.
+          Players who reach the goal split the stakes of those who don’t, in proportion to their stakes.{" "}
+          {loadSubscription()
+            ? "As a subscriber you pay no fee on up to 3 games a month (checked at checkout)."
+            : `Our ${KICKSTARTER.commissionRate * 100}% fee comes only out of that money; we never take from a winner’s own stake.`}
         </p>
       </dl>
 

@@ -46,8 +46,7 @@ export default function PricingPage() {
             <p className="font-mono text-sm text-muted">{formatUsd(SUBSCRIPTION.priceCents)} / month</p>
           </div>
           <dl className="flex flex-col gap-1 font-mono text-sm">
-            <Row label="our fee in your games" value="0%" />
-            <Row label="games at a time" value={`up to ${SUBSCRIPTION.maxGames}`} />
+            <Row label="our fee" value={`0% on up to ${SUBSCRIPTION.maxGames} games a month`} />
             <Row label="card service fee" value={formatUsd(KICKSTARTER.cardFeeCents)} />
           </dl>
           <p className="text-sm text-muted">For people who keep a skill going all year. Winners split everything the others left.</p>

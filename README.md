@@ -2,120 +2,130 @@
 
 **Put a stake on yourself to master a skill.** In a casino the house always wins. Here the house is you.
 
-A 30-day public-speaking game: you commit a stake on your own goal, an AI Proof Engine measures your speech live in the browser, and those who reach the goal get their stake back plus a share of what quitters left. Built for Business Cup 2.0 (Skills track).
+A 30-day public-speaking game for US adults 25–45. You commit a stake on your own goal, a Proof Engine measures your speech live in the browser, and players who reach the goal get their stake back plus a share of what the others left. Built for Business Cup 2.0 (Skills track).
 
-> Test mode only. No real money moves. 18+.
+> **Test mode only. No real money moves.** Stripe runs with test keys; every payout is a test-mode ledger entry. 18+.
 
-**Live:** https://house-edge-flax.vercel.app (no sign-up; open in Chrome or Edge for the microphone)
+- **Live:** https://house-edge-flax.vercel.app (no sign-up; use Chrome or Edge for the microphone)
+- **Repo:** https://github.com/konstantinli-star/house-edge
 
-## Status
+## Jury path (about 10 minutes)
 
-| Milestone | Scope | State |
-|---|---|---|
-| M1 | Skeleton, landing, guest session, env setup, Vercel deploy | ✅ |
-| M2 | Baseline: mic, transcript, filler/pace/pause metrics, Speaker Rating | ✅ |
-| M3 | Rules, 3-speech baseline with liveness phrase, goal, 18+ gate, tiers, Stripe test checkout, entry + test-mode ledger | ✅ verified end to end on the live site |
-| M4 | Daily tasks (adaptive difficulty, Elo rating), dashboard: streak, weekly goal + recovery, rating chart, payout forecast (simulated pool), community feed, reminders | ✅ |
-| M5 | Final exam (camera + mic, eye contact via MediaPipe, fullscreen, flags), settlement with the real payout function, result page with before/after, payout breakdown and calculator, one appeal per game | ✅ |
-| M6 | Demo mode: Jake's 30 days replayed on a virtual clock (~1 min) through the real scoring, rating, calendar, exam and payout code | ✅ |
-| M7 | `/responsible` (built-in limits, personal stake limit, self-exclusion enforced by the checkout, self-check, helpline), `/how-it-works` (formula, 100-player table, conflict of interest, roadmap), `/pricing` (Stripe test-mode subscription checkout), site navigation | ✅ |
-| M8 | Polish and cuts, full self-test as the jury | planned |
+1. Open the live URL and click **Try as guest** in the header (one click, no sign-up).
+2. **Get your Speaker Rating in 60 seconds** (`/baseline`): allow the microphone and talk about the topic. Try once fast with “um, like, you know”, once slowly and cleanly: the numbers change.
+3. **Watch Jake’s 30 days** (`/demo`): press *Play 30 days*. About a minute; labelled *Demo data*, computed by the same code as your game.
+4. **Start a game** (`/play`): rules → 3 short speeches (read the phrase first) → confirm 18+ → choose $50 or $100 → pay in Stripe test mode with **4242 4242 4242 4242**, any future date, any CVC.
+5. **Dashboard** → **Start today’s task** (`/exercise`): a timed task; the result shows your Speaker Rating change.
+6. **Go to the final exam** (`/exam`): camera + microphone, fullscreen, up to 90 s. In this build the exam is open on any day; your practice days count as they are (so a new game will usually show “practice days ✗”).
+7. **Result** (`/result/…`): pass/fail per criterion, before → after, the payout formula with the game’s numbers, a what-if calculator and the appeal.
+8. **How it works**, **Pricing** (test-mode $9.99/month subscription: 0% fee on up to 3 games a month) and **Responsible play** (limits, self-exclusion, helpline) are linked in the footer.
 
-## Final exam
+## What works
 
-`/exam` shows the thresholds first, then a camera check, then a 90-second take (minimum 60 s) in fullscreen with a random topic and liveness phrase. Win = fillers ≤ 3/min, eye contact ≥ 60%, pace 130–165 wpm, ≥ 60 s of speech, and ≥ 24 practice days (`lib/game/exam.ts`). Flags (left the tab, exited fullscreen, phrase not heard, face missing > 1/3 of the time, a second face) are stored with the attempt; a flagged win goes to review instead of paying out. In this test-mode build the exam can be taken any day; practice days count as they are.
+| Area | What you can check |
+|---|---|
+| Guest | One-click anonymous Supabase session, kept in `localStorage` so a refresh keeps your progress |
+| Proof Engine | Fillers, pace, pauses and vocal variety from your own recording; eye contact from the camera in the exam (MediaPipe, on-device) |
+| Speaker Rating | 400–1600 scale with 1000 = the exam bar; chess-style Elo updates on adaptive tasks |
+| Stake | Rules, 3-speech baseline with a liveness phrase, goal, 18+ gate, $50/$100/$250 tiers (first game ≤ $100), Stripe test checkout, entry + ledger in Supabase |
+| Daily practice | Weekly themes, 2 timed tasks a day (max 3 rated), streak, weekly goal with “what you can still recover”, reminder (browser notification + calendar file) |
+| Exam & payout | Strict exam with flags (tab, fullscreen, phrase, face), server-side settlement with the real payout function, one appeal per game |
+| Demo | Jake’s 30 days on a virtual clock through the real pipeline: 802 → 1016, exam passed, $124.38 back on $100 |
+| Safeguards | Personal stake limit, self-exclusion enforced by the server, self-check, national helpline, test-mode banner on money screens |
+| Pricing | Open game (15% fee only from the money of players who missed) and a working test-mode subscription (0% fee, verified with Stripe at checkout) |
 
-**Eye contact** (`lib/vision/gaze.ts`, `hooks/useGazeTracker.ts`): MediaPipe FaceLandmarker runs in the browser at ~10 fps. A frame counts as eye contact when the head is roughly frontal (nose near the face centre) and both irises are near the centre of the eye opening; frames without a face count as no contact. Only the percentage leaves the device.
+## What was cut (in the spec’s cut order)
 
-**Settlement** (`lib/game/settle.ts`, `/api/entry/settle`): the server re-runs the same exam rules and payout function on the measurements, updates the entry and writes the payout to the test-mode ledger. `/result/[id]` shows each criterion, before/after, the formula with the game's numbers, a what-if calculator and the appeal (`/api/entry/appeal`, lost → review, once).
-
-## Speaker Rating (Elo)
-
-**Scale.** Every metric maps to 0–100 with exactly **50 at the exam threshold** (fillers 3/min, pace at the band edge, eye contact 60%, 2.5 semitones of pitch spread), using `100 / (1 + ratio^k)`; struggling speakers sit near 30–35 and 100 is reserved for excellent (`lib/proof/score.ts`). The composite is a weighted mean (fillers 35%, pace 25%, eye contact 25%, variety 15%; unmeasured metrics skipped) and the rating is R = 400 + 12 × composite, so **1000 = meets the exam bar**. Jake's day-1 numbers (9 fillers/min, 187 wpm, 31% eye contact) land at ~812 by construction.
-
-**Updates.** Each daily task has a difficulty D (800–1400) from its filler limit, time limit and topic level (`lib/game/tasks.ts`), generated just above the player's rating. The attempt gets its own performance rating on the same scale (scaled down if under 80% of the time was used), and scores P = 1 / (1 + 10^((D − perf)/400)). Expected E = 1 / (1 + 10^((D − R)/400)); R′ = R + 32·(P − E) (`lib/game/rating.ts`). Performing at your level changes nothing, so the rating converges to how you actually speak; easy tasks pay little and cost a lot when failed. Max 3 rated tasks a day. A rise of more than 120 in 7 days triggers an unscheduled control measurement with a strict liveness check.
-
-## Responsible play
-
-- 18+ gate before any stake screen; stakes $50 / $100 / $250 only, first game ≤ $100; one active game; max 3 rated tasks a day; no credit, doubling or paid extras that change odds.
-- **Personal stake limit** (`lib/safety.ts`): lowering applies at once, raising or removing waits 24 hours.
-- **Self-exclusion**: stored on the account (`/api/player/self-exclusion`) and enforced by `/api/checkout` (403), so it holds in any browser; free tools stay open; lifting it needs a 7-day pause.
-- **Helpline**: the spec named 1-800-GAMBLER, but NCPG's site (checked Nov 2026) now lists **1-800-MY-RESET (1-800-697-3738)** for call/text and chat at ncpgambling.org/chat, so the app uses that.
-
-## Demo mode
-
-`/demo` replays Jake's 30 days in about a minute (`lib/demo/jake.ts`, `components/demo/`). Only the raw inputs are seeded: what Jake said (transcripts with his fillers) and an audio summary per take, improving along an easing curve, with 4 missed days. Everything shown is computed by the same code a player runs: filler detection → metrics → scores → adaptive tasks → Elo → calendar and weekly goals → final exam → payout with the simulated pool. The landing page's Jake numbers come from the same run. Result: 802 → 1016, exam passed, $124.38 back on a $100 stake. Labelled "Demo data".
-
-## Payout
-
-`lib/game/payout.ts` implements the formula; `tests/payout.test.ts` checks the exact numbers from the spec (100 × $100 pool at 50/70/90/100% winners, subscriber 0% case, mixed stakes, everyone/nobody wins). The dashboard forecast runs the same function over a deterministic simulated pool of 99 players (`lib/game/pool.ts`), labelled "Simulated pool".
-
-## Return mechanic
-
-Daily streak, weekly goal (6 practice days, with "you can still hit this week's goal" recovery), and a daily reminder: a browser notification while a tab is open plus a downloadable recurring calendar event (`.ics`), so it works without push servers.
-
-## Database
-
-Run [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) in the Supabase SQL editor and enable **Anonymous sign-ins** (Auth → Providers). Entries and ledger rows are written only by the server after Stripe confirms a test-mode payment; row-level security lets each player read only their own rows. The ledger has `test_mode = true` enforced by a check constraint.
-
-## Jury path
-
-1. Open the live URL and click **Try as guest** (one click, no sign-up).
-2. **Get your Speaker Rating in 60 seconds** → `/baseline`.
-3. Place a stake in test mode → `/play` (Stripe test card `4242 4242 4242 4242`, any future date, any CVC).
-4. **Watch Jake's 30 days** → `/demo`.
+- **AI audience questions and the speech-structure score (Claude).** Not built; no Claude calls in this build. Q&A week uses a fixed bank of audience questions.
+- **Sponsor-prize spin bonuses.** Not built; the rating chart is the reward.
+- **Pricing extras.** Verified Speaker Rating certificate and 1:1 coaching are listed with prices but have no checkout.
+- **Optional email magic link (“Save progress”).** Not built; guest sessions only.
+- **Eye-contact tracking was kept**, but its thresholds are geometric and not tuned on real users yet.
 
 ## Run locally
 
 ```bash
 npm install
-cp .env.example .env.local   # fill in what you have; everything is optional for M1
-npm run dev
+cp .env.example .env.local
+npm run dev        # http://localhost:3000
+npm test           # 83 unit tests (vitest)
 ```
 
-Open http://localhost:3000. `GET /api/health` shows which integrations are configured (booleans only).
+The app runs without any keys (local guest, browser speech recognition); each integration switches on when its env vars are set. `GET /api/health` shows which are configured (booleans only).
+
+**Supabase:** create a project, run [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) in the SQL editor, and enable **Authentication → Sign In / Providers → Anonymous sign-ins**.
+**Stripe:** use **test-mode** keys only; the server refuses any key that doesn’t start with `sk_test_`/`rk_test_`.
 
 ## Environment variables
 
-See [`.env.example`](.env.example). All secrets are server-side except the `NEXT_PUBLIC_*` Supabase URL/anon key and Stripe publishable key, which are safe for the browser.
+See [`.env.example`](.env.example). Secrets are server-only; `NEXT_PUBLIC_*` values are safe in the browser. On Vercel they live in Project → Settings → Environment Variables; nothing secret is in the repo.
 
 | Variable | Used for |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anonymous guest sessions, data storage (RLS) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-only seeding of the simulated pool |
-| `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | Speech structure score and AI audience questions |
-| `OPENAI_API_KEY` | Speech-to-text fallback that keeps filler words |
-| `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe **test-mode** checkout |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anonymous guest sessions; attempts saved under row-level security |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only writes: entries, ledger, settlement, appeals, self-exclusion |
+| `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe **test-mode** checkout (stakes and subscription) |
+| `STRIPE_WEBHOOK_SECRET` | Not used (confirmation happens on the success page by retrieving the session) |
+| `OPENAI_API_KEY`, `OPENAI_STT_MODEL` | Optional speech-to-text that keeps “um/uh” (`/api/transcribe`); without it the browser’s Web Speech API is used |
+| `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | Reserved for the cut AI features; not used |
 
-## Proof Engine (speech metrics)
+## Key dependencies
 
-All metrics are computed from the user's own recording; nothing is canned. Code lives in `lib/proof/` (pure functions, unit-tested).
+Next.js 16 (App Router, TypeScript) on Vercel · Tailwind CSS 4 · Supabase (Postgres, anonymous auth, RLS) · Stripe (test mode, Checkout) · MediaPipe Tasks Vision 1.1.1 (FaceLandmarker, in the browser) · Web Speech API + optional OpenAI speech-to-text · Recharts · Vitest.
+
+## How it is built
+
+```
+app/                 pages and API routes
+  api/checkout/        stake + subscription checkout, confirmation
+  api/entry/           exam settlement, appeal
+  api/player/          self-exclusion
+  api/transcribe/      optional OpenAI speech-to-text
+components/          UI by area (baseline, play, exercise, exam, result, dashboard, demo, responsible, ...)
+hooks/               recording, game state, gaze tracker, virtual clock
+lib/proof/           speech metrics and scoring (pure)
+lib/game/            rules, baseline, tasks, Elo, calendar, exam, payout, pool, settlement (pure)
+lib/demo/            Jake's seeded 30 days
+lib/server/          Stripe (test keys only), Supabase admin, subscription check
+supabase/migrations/ schema + RLS
+tests/               unit tests, including real speech generated with macOS `say`
+```
+
+### Proof Engine (speech metrics)
+
+All metrics are computed from the user’s own recording; nothing is canned.
 
 | Metric | How | File |
 |---|---|---|
-| Fillers/min | Transcript rules: `um/uh` always; `like`, `so`, `you know`, `I mean` only in filler positions ("looks like", "so that" are not penalised); `basically/actually/literally` always | `fillers.ts` |
-| um/uh fallback | Browser speech recognition drops hesitations, so we also count flat, sustained voiced sounds of 0.35–2 s (pitch std < 0.6 semitones, steady loudness) and use that when it is higher | `prosody.ts` |
-| Pace | words ÷ speaking span (first to last voiced frame) | `metrics.ts` |
-| Pauses | silences > 0.7 s inside the speaking span, from an adaptive energy threshold between the noise floor and the 95th-percentile level | `prosody.ts` |
-| Vocal variety (monotony) | standard deviation of pitch in semitones (autocorrelation pitch, 5-frame median filter); < 1.5 st sounds flat | `pitch.ts`, `prosody.ts` |
-| Speaker Rating | metric scores with 50 at each exam threshold, weighted composite (fillers 35%, pace 25%, eye contact 25%, variety 15%, missing metrics skipped) → R0 = 400 + 12 × composite | `score.ts` |
+| Fillers/min | `um/uh` always; `like`, `so`, `you know`, `I mean` only in filler positions (“looks like”, “so that” are not counted); `basically/actually/literally` always | `lib/proof/fillers.ts` |
+| um/uh fallback | Browser recognition drops hesitations, so flat, sustained voiced sounds of 0.35–2 s are counted from the audio and used when higher | `lib/proof/prosody.ts` |
+| Pace | words ÷ speaking span (first to last voiced frame) | `lib/proof/metrics.ts` |
+| Pauses | silences > 0.7 s, from an adaptive energy threshold | `lib/proof/prosody.ts` |
+| Vocal variety | standard deviation of pitch in semitones (autocorrelation, median-filtered) | `lib/proof/pitch.ts` |
+| Eye contact | MediaPipe iris + head landmarks, ~10 fps, frames without a face count as no contact; only the % leaves the device | `lib/vision/gaze.ts` |
 
-Transcript: OpenAI speech-to-text (`/api/transcribe`, prompted to keep disfluencies) when `OPENAI_API_KEY` is set; otherwise the browser's Web Speech API. Audio is decoded and analysed on the device; it is sent once for transcription and never stored.
+Audio is decoded and analysed on the device, sent once for transcription only if OpenAI is configured, and never stored. Video is never sent.
 
-Tests (`npm test`) include real speech generated with macOS `say`: measured pace stays within 5% of ground truth at two speeds, and inserted 1.2 s silences are detected as pauses.
+### Speaker Rating
 
-## Guest sessions
+Every metric maps to 0–100 with **exactly 50 at the exam threshold** (`100 / (1 + ratio^k)`). The composite is a weighted mean (fillers 35%, pace 25%, eye contact 25%, variety 15%; unmeasured metrics skipped) and R = 400 + 12 × composite, so **1000 = meets the exam bar**. Jake’s day-1 numbers land near 812.
 
-`Try as guest` creates a session in one click. If Supabase is configured (with Anonymous sign-ins enabled), it calls `signInAnonymously()`; otherwise it falls back to a local id. Either way the session is kept in `localStorage` so the flow survives a refresh.
+Each task has a difficulty D (800–1400) from its filler limit, time limit and topic level, generated just above the player’s rating. The attempt gets its own rating on the same scale, P = 1 / (1 + 10^((D − perf)/400)), E = 1 / (1 + 10^((D − R)/400)), R′ = R + 32·(P − E). Performing at your level changes nothing; easy tasks pay little and cost a lot when failed. A rise of more than 120 in 7 days triggers a control measurement with a strict liveness check.
 
-## Stack
-
-Next.js (App Router, TypeScript), Tailwind CSS, Supabase, Vercel. Later milestones add Web Speech API + OpenAI speech-to-text, MediaPipe tasks-vision, Anthropic Claude API, Stripe test mode and Recharts.
-
-## Structure
+### Payout
 
 ```
-app/            routes (landing, placeholders for upcoming milestones, /api/health)
-components/     UI pieces (Header, GuestButton, MetricLog, ...)
-lib/            guest session + Supabase client
+L = stakes of players who missed, S_w = stakes of winners, Bank = L + S_w
+Commission = min(f × Bank, L)        f = 15% open game, 0% subscriber
+Payout_i   = s_i + (s_i / S_w) × (L − Commission)
 ```
+
+`lib/game/payout.ts`; `tests/payout.test.ts` checks the spec’s exact numbers (50/70/90/100% winners → $170.00 / $121.43 / $100.00 / $100.00; subscribers $200.00 / $142.86 / $111.11; mixed stakes $120 / $300; everyone or nobody wins). Forecasts and settlements run the same function over a deterministic simulated pool of 99 players, labelled “Simulated pool”. The server re-runs the exam rules and payout on settlement; nothing about money is decided in the browser.
+
+### Responsible play
+
+18+ gate before stakes; tiers $50/$100/$250, first game ≤ $100, one active game, max 3 rated tasks a day; no credit, doubling or paid extras. Personal stake limit (stricter now, looser after 24 h). Self-exclusion stored on the account and enforced by `/api/checkout` (403); lifting it needs a 7-day pause. The spec named 1-800-GAMBLER, but NCPG’s site (checked Nov 2026) lists **1-800-MY-RESET (1-800-697-3738)** for call/text and chat at ncpgambling.org/chat, so the app uses that.
+
+### Privacy and data
+
+Supabase tables: `players`, `attempts` (transcript, metrics, flags; no audio/video), `games`, `entries`, `ledger` (`test_mode = true` enforced by a check constraint), `rating_history`, `simulated_players`, `reminders`. Row-level security: each player reads only their own rows; money rows are written only by the server after Stripe confirms a test-mode payment. Daily practice records and reminders are kept in the browser in this build.

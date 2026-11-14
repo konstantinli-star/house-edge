@@ -66,7 +66,7 @@ export function Dashboard() {
 
       <div className="grid gap-5 md:grid-cols-2">
         <WeekProgress c={c} />
-        <PayoutForecast day={c.day} stakeCents={entry.stakeCents} onTrack={c.goalReachable} />
+        <PayoutForecast day={c.day} stakeCents={entry.stakeCents} onTrack={c.goalReachable} commissionRate={entry.goal.commissionRate} />
         <ReminderOptIn gameEndDate={gameEnd} practicedToday={c.practicedToday} />
         <CommunityFeed day={c.day} />
       </div>

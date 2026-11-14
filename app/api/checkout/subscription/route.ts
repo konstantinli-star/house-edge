@@ -25,7 +25,7 @@ export async function POST(req: Request) {
           recurring: { interval: "month" },
           product_data: {
             name: SUBSCRIPTION.name,
-            description: "Test mode. No real money moves. 0% commission, up to 3 games at a time.",
+            description: "Test mode. No real money moves. 0% commission on up to 3 games a month.",
           },
         },
       },

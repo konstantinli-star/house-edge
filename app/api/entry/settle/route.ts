@@ -27,14 +27,14 @@ export async function POST(req: Request) {
 
   const { data: entry } = await admin
     .from("entries")
-    .select("id, stake_cents, status")
+    .select("id, stake_cents, status, goal")
     .eq("id", body.entryId)
     .eq("player_id", playerId)
     .maybeSingle();
   if (!entry) return Response.json({ error: "Entry not found." }, { status: 404 });
   if (entry.status !== "active") return Response.json({ error: "This game is already settled." }, { status: 409 });
 
-  const { outcome, payoutCents } = settlementFor(entry.stake_cents, body.exam);
+  const { outcome, payoutCents } = settlementFor(entry.stake_cents, body.exam, entry.goal?.commissionRate);
   const { error } = await admin
     .from("entries")
     .update({ status: outcome.status, payout_cents: payoutCents })

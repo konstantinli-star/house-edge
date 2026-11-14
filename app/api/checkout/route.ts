@@ -4,6 +4,7 @@ import { validateStake, type StakeRequest } from "@/lib/game/entry";
 import { formatUsd, KICKSTARTER } from "@/lib/game/rules";
 import { getTestStripe } from "@/lib/server/stripe";
 import { getSupabaseAdmin, playerFromRequest } from "@/lib/server/supabase-admin";
+import { commissionRateFor } from "@/lib/server/subscription";
 
 export const runtime = "nodejs";
 
@@ -35,6 +36,7 @@ export async function POST(req: Request) {
   const problem = validateStake(body);
   if (problem) return Response.json({ error: problem }, { status: 400 });
 
+  const commissionRate = await commissionRateFor(stripe, body.subscriptionSessionId, admin, playerId);
   const origin = new URL(req.url).origin;
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
@@ -67,6 +69,7 @@ export async function POST(req: Request) {
       stake_cents: String(body.stakeCents),
       baseline: JSON.stringify(body.baseline),
       player_id: playerId ?? "",
+      commission_rate: String(commissionRate),
     },
   });
 

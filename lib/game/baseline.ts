@@ -36,9 +36,10 @@ export type Goal = {
   days: number;
   ratingFrom: number;
   ratingTarget: number;
+  commissionRate?: number; // 0 for subscribers; missing on older entries = open game
 };
 
-export function deriveGoal(baselineRating: number): Goal {
+export function deriveGoal(baselineRating: number, commissionRate: number = KICKSTARTER.commissionRate): Goal {
   const { exam, minPracticeDays, days, ratingGainTarget } = KICKSTARTER;
   return {
     exam: { ...exam },
@@ -46,5 +47,6 @@ export function deriveGoal(baselineRating: number): Goal {
     days,
     ratingFrom: baselineRating,
     ratingTarget: baselineRating + ratingGainTarget,
+    commissionRate,
   };
 }

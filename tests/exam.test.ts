@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { evaluateExam, EXAM_DIFFICULTY, type ExamInput } from "@/lib/game/exam";
 import { finalSettlement, simulatedPool } from "@/lib/game/pool";
+import { settlementFor } from "@/lib/game/settle";
 import { eyeContactPct, readGaze, type Point } from "@/lib/vision/gaze";
 
 const passing: ExamInput = { fillersPerMin: 2.1, wpm: 152, eyeContactPct: 68, speakingSec: 85, practiceDays: 26, flags: {} };
@@ -42,6 +43,13 @@ describe("final settlement", () => {
     const s = finalSettlement(pool, 30, { stakeCents: 10000, won: true });
     expect(s.yourPayoutCents).toBeGreaterThan(10000);
     expect(s.players).toBe(100);
+  });
+
+  it("pays a subscriber more than an open-game player for the same result", () => {
+    const open = settlementFor(10000, passing).settlement.yourPayoutCents;
+    const sub = settlementFor(10000, passing, 0).settlement;
+    expect(sub.commissionCents).toBe(0);
+    expect(sub.yourPayoutCents).toBeGreaterThan(open);
   });
 
   it("pays nothing to a player who missed the goal, and their stake helps winners", () => {

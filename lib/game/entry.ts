@@ -36,6 +36,7 @@ export type StakeRequest = {
   baseline: Baseline;
   adultConfirmed: boolean;
   gamesPlayed: number;
+  subscriptionSessionId?: string; // verified with Stripe by the server
 };
 
 // Server-side validation of what the browser asks to stake.
@@ -52,12 +53,18 @@ export function validateStake(req: StakeRequest): string | null {
   return null;
 }
 
-export function buildEntry(id: string, stakeCents: number, baseline: Baseline, storage: Entry["storage"]): Entry {
+export function buildEntry(
+  id: string,
+  stakeCents: number,
+  baseline: Baseline,
+  storage: Entry["storage"],
+  commissionRate: number = KICKSTARTER.commissionRate,
+): Entry {
   return {
     id,
     game: KICKSTARTER.slug,
     stakeCents,
-    goal: deriveGoal(baseline.rating),
+    goal: deriveGoal(baseline.rating, commissionRate),
     baseline,
     status: "active",
     ledger: [

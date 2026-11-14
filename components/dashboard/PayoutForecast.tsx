@@ -4,8 +4,10 @@ import { formatUsd, KICKSTARTER } from "@/lib/game/rules";
 const GAME = "kickstarter-2026-11";
 
 // Live "if you finish" forecast, computed with the real payout function.
-export function PayoutForecast({ day, stakeCents, onTrack }: { day: number; stakeCents: number; onTrack: boolean }) {
-  const f = payoutForecast(simulatedPool(GAME), day, { stakeCents });
+type Props = { day: number; stakeCents: number; onTrack: boolean; commissionRate?: number };
+
+export function PayoutForecast({ day, stakeCents, onTrack, commissionRate = KICKSTARTER.commissionRate }: Props) {
+  const f = payoutForecast(simulatedPool(GAME), day, { stakeCents }, commissionRate);
   const share = f.payoutCents - f.stakeCents;
 
   return (
@@ -34,8 +36,7 @@ export function PayoutForecast({ day, stakeCents, onTrack }: { day: number; stak
         </div>
       </dl>
       <p className="text-xs text-muted">
-        Assumes about {PROJECTED_FINISH_RATE * 100}% of players finish. Our {KICKSTARTER.commissionRate * 100}% fee comes
-        only from the stakes of players who don’t. Test mode. No real money moves.
+        Assumes about {PROJECTED_FINISH_RATE * 100}% of players finish. {commissionRate === 0 ? "No fee in your subscriber game; everything" : `Our ${commissionRate * 100}% fee comes only from the stakes of players who don’t; the rest`} goes to the players who finish. Test mode. No real money moves.
       </p>
     </section>
   );

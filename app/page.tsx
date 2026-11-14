@@ -18,11 +18,16 @@ const steps = [
   { n: "04", title: "Prove it", body: "Pass a live final exam. Get your stake back plus a share of what quitters left." },
 ];
 
+// The whole judged flow, in order. Each step links to its page.
 const juryPath = [
-  { href: "/", label: "Click “Try as guest” in the header (one click, no sign-up)." },
-  { href: "/baseline", label: "Get your Speaker Rating in 60 seconds." },
-  { href: "/play", label: "Place a stake in test mode (Stripe test card 4242 4242 4242 4242)." },
-  { href: "/demo", label: "Watch Jake’s 30 days replayed in about a minute." },
+  { href: null, label: "Click “Try as guest” in the header: one click, no sign-up." },
+  { href: "/baseline", label: "Get your Speaker Rating in 60 seconds (Chrome or Edge, allow the mic)." },
+  { href: "/demo", label: "Watch Jake’s 30 days: the full game replayed in about a minute (Demo data)." },
+  { href: "/play", label: "Start a game: 3 short speeches, 18+, then pay in test mode with card 4242 4242 4242 4242." },
+  { href: "/exercise", label: "Do today’s timed task and see your rating move (Elo)." },
+  { href: "/exam", label: "Take the final exam under camera and mic (allowed any day in this build)." },
+  { href: "/how-it-works", label: "Check the payout formula, the 100-player table and our conflict-of-interest statement." },
+  { href: "/responsible", label: "See limits, self-exclusion and the helpline." },
 ];
 
 export default function Landing() {
@@ -82,12 +87,18 @@ export default function Landing() {
       </section>
 
       <section aria-labelledby="jury" className="rounded-lg border border-accent/30 bg-surface p-5">
-        <h2 id="jury" className="font-mono text-sm text-accent">For the jury: suggested path</h2>
+        <h2 id="jury" className="font-mono text-sm text-accent">For the jury: suggested path (about 10 minutes)</h2>
         <ol className="mt-3 flex flex-col gap-2 text-sm">
           {juryPath.map((step, i) => (
-            <li key={step.href + i} className="flex gap-3">
+            <li key={step.label} className="flex gap-3">
               <span className="font-mono text-muted">{i + 1}.</span>
-              <span>{step.label}</span>
+              {step.href ? (
+                <Link href={step.href} className="hover:text-accent hover:underline">
+                  {step.label}
+                </Link>
+              ) : (
+                <span>{step.label}</span>
+              )}
             </li>
           ))}
         </ol>

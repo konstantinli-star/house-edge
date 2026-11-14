@@ -14,17 +14,20 @@ export const EXTRAS = [
 
 const KEY = "house-edge:subscription";
 
-export function loadSubscription(): { since: string } | null {
+export type StoredSubscription = { since: string; sessionId: string };
+
+export function loadSubscription(): StoredSubscription | null {
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "null") as { since: string } | null;
+    return JSON.parse(localStorage.getItem(KEY) ?? "null") as StoredSubscription | null;
   } catch {
     return null;
   }
 }
 
-export function saveSubscription() {
+// The Stripe session id lets the server re-verify the subscription at checkout.
+export function saveSubscription(sessionId: string) {
   try {
-    localStorage.setItem(KEY, JSON.stringify({ since: new Date().toISOString() }));
+    localStorage.setItem(KEY, JSON.stringify({ since: new Date().toISOString(), sessionId }));
   } catch {
     // Not persisted; the checkout still happened in Stripe test mode.
   }

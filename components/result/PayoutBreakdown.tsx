@@ -1,8 +1,14 @@
 import type { FinalSettlement } from "@/lib/game/pool";
-import { formatUsd } from "@/lib/game/rules";
+import { formatUsd, KICKSTARTER } from "@/lib/game/rules";
 
 // The real formula with this game's numbers filled in.
-export function PayoutBreakdown(p: { s: FinalSettlement; stakeCents: number; status: "won" | "lost" | "appeal_review" | "active" }) {
+export function PayoutBreakdown(p: {
+  s: FinalSettlement;
+  stakeCents: number;
+  status: "won" | "lost" | "appeal_review" | "active";
+  commissionRate?: number;
+}) {
+  const ratePct = Math.round((p.commissionRate ?? KICKSTARTER.commissionRate) * 100);
   const { s, stakeCents } = p;
   const won = p.status === "won";
   const net = s.losersCents - s.commissionCents;
@@ -11,7 +17,7 @@ export function PayoutBreakdown(p: { s: FinalSettlement; stakeCents: number; sta
     ["bank = all stakes", formatUsd(s.bankCents)],
     ["L = stakes of players who missed", formatUsd(s.losersCents)],
     ["S_w = stakes of winners", formatUsd(s.winnersCents)],
-    ["commission = min(15% × bank, L)", formatUsd(s.commissionCents)],
+    [`commission = min(${ratePct}% × bank, L)`, formatUsd(s.commissionCents)],
     ["left for winners = L − commission", formatUsd(net)],
   ];
 

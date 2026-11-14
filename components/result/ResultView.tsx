@@ -39,7 +39,7 @@ export function ResultView({ id }: { id: string }) {
   }
 
   const exam = entry.exam;
-  const { settlement } = settlementFor(entry.stakeCents, exam.input);
+  const { settlement } = settlementFor(entry.stakeCents, exam.input, entry.goal.commissionRate);
   const flags = (Object.keys(exam.input.flags) as (keyof ExamFlags)[]).filter((k) => exam.input.flags[k]);
 
   return (
@@ -74,7 +74,7 @@ export function ResultView({ id }: { id: string }) {
       />
 
       <BeforeAfter entry={entry} exam={exam} />
-      <PayoutBreakdown s={settlement} stakeCents={entry.stakeCents} status={entry.status} />
+      <PayoutBreakdown s={settlement} stakeCents={entry.stakeCents} status={entry.status} commissionRate={entry.goal.commissionRate} />
 
       {entry.status === "lost" && !entry.appeal && <AppealForm entry={entry} onChange={setEntry} />}
 
