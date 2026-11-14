@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { KICKSTARTER } from "@/lib/game/rules";
+import { PayoutFormulas } from "@/components/info/PayoutFormulas";
 import { PayoutTable } from "@/components/info/PayoutTable";
 import { Roadmap } from "@/components/info/Roadmap";
 
@@ -12,21 +13,6 @@ const STEPS = [
   ["Practise", "10–15 minutes a day. Tasks adapt to your Speaker Rating, which moves like a chess rating."],
   ["Prove it", `A live final exam under camera and microphone, plus ${KICKSTARTER.minPracticeDays} of ${KICKSTARTER.days} practice days.`],
   ["Settle", "Reach the goal: your stake back plus a share of what others left. Miss it: your stake goes to those who finished."],
-];
-
-const KEPT = [
-  "Something real on the line, so you show up on day 12 too",
-  "A shared pot that rewards finishing",
-  "A scoreboard: the Speaker Rating chart",
-  "Weekly goals and a streak that make the next day count",
-];
-
-const CUT = [
-  "Chance: the result depends only on your measured performance",
-  "An edge against you: a winner's own stake is never touched",
-  "Buying extra tries, “almost won” effects, doubling up or credit",
-  "Endless sessions: at most 3 rated tasks a day",
-  "Big stakes: $50 / $100 / $250, first game capped at $100",
 ];
 
 const PROOF = [
@@ -60,20 +46,9 @@ export default function HowItWorksPage() {
         ))}
       </ol>
 
-      <section className="grid gap-5 md:grid-cols-2">
-        <List title="What we took from gambling design" items={KEPT} tone="text-accent" />
-        <List title="What we cut" items={CUT} tone="text-warn" />
-      </section>
-
       <section className="flex flex-col gap-3">
         <h2 className="text-xl font-semibold">The payout formula</h2>
-        <pre className="overflow-x-auto rounded-lg border border-line bg-surface p-4 font-mono text-sm leading-relaxed">
-{`L   = stakes of players who missed the goal
-S_w = stakes of players who reached it
-Bank = L + S_w
-Commission = min(15% × Bank, L)      0% for subscribers
-Payout_i   = s_i + (s_i / S_w) × (L − Commission)`}
-        </pre>
+        <PayoutFormulas />
         <p className="text-sm text-muted">
           The fee comes only out of the stakes of players who missed the goal. If everyone wins, everyone gets their stake
           back and we take nothing. If nobody wins, the bank rolls over to the next game.

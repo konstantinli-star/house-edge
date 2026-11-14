@@ -14,6 +14,8 @@
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  /* Formulas: system math fonts (macOS ships STIX Two, Windows ships Cambria). */
+  --font-math: "STIX Two Math", "STIX Two Text", "Cambria Math", Cambria, "Times New Roman", serif;
 }
 
 html {
