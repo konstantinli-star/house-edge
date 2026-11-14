@@ -17,7 +17,8 @@ A 30-day public-speaking game: you commit a stake on your own goal, an AI Proof 
 | M3 | Rules, 3-speech baseline with liveness phrase, goal, 18+ gate, tiers, Stripe test checkout, entry + test-mode ledger | ✅ verified end to end on the live site |
 | M4 | Daily tasks (adaptive difficulty, Elo rating), dashboard: streak, weekly goal + recovery, rating chart, payout forecast (simulated pool), community feed, reminders | ✅ |
 | M5 | Final exam (camera + mic, eye contact via MediaPipe, fullscreen, flags), settlement with the real payout function, result page with before/after, payout breakdown and calculator, one appeal per game | ✅ |
-| M6–M8 | Demo mode, safeguard pages, pricing, polish | planned |
+| M6 | Demo mode: Jake's 30 days replayed on a virtual clock (~1 min) through the real scoring, rating, calendar, exam and payout code | ✅ |
+| M7–M8 | Safeguard pages, pricing, how-it-works, polish | planned |
 
 ## Final exam
 
@@ -29,7 +30,13 @@ A 30-day public-speaking game: you commit a stake on your own goal, an AI Proof 
 
 ## Speaker Rating (Elo)
 
-Each daily task has a difficulty D (800–1400) from its filler limit, time limit and topic level (`lib/game/tasks.ts`); tasks are generated just above the player's current rating. Performance P ∈ [0,1] is scored against the task's own limits (fillers 45%, pace 30%, vocal variety 15%, time used 10%). Expected E = 1 / (1 + 10^((D − R)/400)); R′ = R + 32·(P − E) (`lib/game/rating.ts`). Easy tasks pay little and cost a lot when failed, so the rating can't be farmed. Max 3 rated tasks a day. A rise of more than 120 in 7 days triggers an unscheduled control measurement with a strict liveness check.
+**Scale.** Every metric maps to 0–100 with exactly **50 at the exam threshold** (fillers 3/min, pace at the band edge, eye contact 60%, 2.5 semitones of pitch spread), using `100 / (1 + ratio^k)`; struggling speakers sit near 30–35 and 100 is reserved for excellent (`lib/proof/score.ts`). The composite is a weighted mean (fillers 35%, pace 25%, eye contact 25%, variety 15%; unmeasured metrics skipped) and the rating is R = 400 + 12 × composite, so **1000 = meets the exam bar**. Jake's day-1 numbers (9 fillers/min, 187 wpm, 31% eye contact) land at ~812 by construction.
+
+**Updates.** Each daily task has a difficulty D (800–1400) from its filler limit, time limit and topic level (`lib/game/tasks.ts`), generated just above the player's rating. The attempt gets its own performance rating on the same scale (scaled down if under 80% of the time was used), and scores P = 1 / (1 + 10^((D − perf)/400)). Expected E = 1 / (1 + 10^((D − R)/400)); R′ = R + 32·(P − E) (`lib/game/rating.ts`). Performing at your level changes nothing, so the rating converges to how you actually speak; easy tasks pay little and cost a lot when failed. Max 3 rated tasks a day. A rise of more than 120 in 7 days triggers an unscheduled control measurement with a strict liveness check.
+
+## Demo mode
+
+`/demo` replays Jake's 30 days in about a minute (`lib/demo/jake.ts`, `components/demo/`). Only the raw inputs are seeded: what Jake said (transcripts with his fillers) and an audio summary per take, improving along an easing curve, with 4 missed days. Everything shown is computed by the same code a player runs: filler detection → metrics → scores → adaptive tasks → Elo → calendar and weekly goals → final exam → payout with the simulated pool. The landing page's Jake numbers come from the same run. Result: 802 → 1016, exam passed, $124.38 back on a $100 stake. Labelled "Demo data".
 
 ## Payout
 
@@ -83,7 +90,7 @@ All metrics are computed from the user's own recording; nothing is canned. Code 
 | Pace | words ÷ speaking span (first to last voiced frame) | `metrics.ts` |
 | Pauses | silences > 0.7 s inside the speaking span, from an adaptive energy threshold between the noise floor and the 95th-percentile level | `prosody.ts` |
 | Vocal variety (monotony) | standard deviation of pitch in semitones (autocorrelation pitch, 5-frame median filter); < 1.5 st sounds flat | `pitch.ts`, `prosody.ts` |
-| Speaker Rating | weighted composite (fillers 35%, pace 25%, eye contact 25%, variety 15%, missing metrics skipped) → R0 = 400 + 12 × composite | `score.ts` |
+| Speaker Rating | metric scores with 50 at each exam threshold, weighted composite (fillers 35%, pace 25%, eye contact 25%, variety 15%, missing metrics skipped) → R0 = 400 + 12 × composite | `score.ts` |
 
 Transcript: OpenAI speech-to-text (`/api/transcribe`, prompted to keep disfluencies) when `OPENAI_API_KEY` is set; otherwise the browser's Web Speech API. Audio is decoded and analysed on the device; it is sent once for transcription and never stored.
 

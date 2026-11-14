@@ -10,6 +10,7 @@ import { settlementFor } from "@/lib/game/settle";
 import { TestModeBanner } from "@/components/play/TestModeBanner";
 import { AppealForm } from "./AppealForm";
 import { BeforeAfter } from "./BeforeAfter";
+import { CriteriaTable } from "./CriteriaTable";
 import { PayoutBreakdown } from "./PayoutBreakdown";
 import { PayoutCalculator } from "./PayoutCalculator";
 
@@ -61,25 +62,16 @@ export function ResultView({ id }: { id: string }) {
         </p>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-line bg-surface">
-        <h2 className="border-b border-line px-4 py-2 font-mono text-xs text-muted">final exam · by criterion</h2>
-        <ul className="divide-y divide-line font-mono text-sm">
-          {exam.outcome.criteria.map((c) => (
-            <li key={c.key} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-2.5">
-              <span className="text-muted">{c.label}</span>
-              <span className="tabular-nums">{c.value}</span>
-              <span className={c.passed ? "text-accent" : "text-warn"}>
-                {c.passed ? "✓" : "✗"} {c.target}
-              </span>
-            </li>
-          ))}
-        </ul>
-        {flags.length > 0 && (
-          <p className="border-t border-line px-4 py-2.5 text-sm text-warn">
-            Flags: {flags.map((f) => FLAG_LABELS[f]).join(" · ")}
-          </p>
-        )}
-      </section>
+      <CriteriaTable
+        criteria={exam.outcome.criteria}
+        footer={
+          flags.length > 0 && (
+            <p className="border-t border-line px-4 py-2.5 text-sm text-warn">
+              Flags: {flags.map((f) => FLAG_LABELS[f]).join(" · ")}
+            </p>
+          )
+        }
+      />
 
       <BeforeAfter entry={entry} exam={exam} />
       <PayoutBreakdown s={settlement} stakeCents={entry.stakeCents} status={entry.status} />

@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { MetricLog } from "@/components/MetricLog";
+import { JAKE, runJakeDemo } from "@/lib/demo/jake";
 
-// Jake's day-1 numbers from the demo narrative. Shown as an example only.
+// Jake's day-0 numbers, computed by the same demo run as /demo (labelled demo data).
+const jake = runJakeDemo();
 const jakeDayOne = [
-  { label: "fillers/min", value: "9.0", note: "um, like, you know: target ≤ 3" },
-  { label: "pace", value: "187 wpm", note: "too fast: target 130–165" },
-  { label: "eye contact", value: "31%", note: "mostly the laptop: target ≥ 60%" },
-  { label: "speaker rating", value: "812", note: "goal for the game: +150" },
+  { label: "fillers/min", value: jake.baseline.fillersPerMin.toFixed(1), note: "um, like, you know: target ≤ 3" },
+  { label: "pace", value: `${jake.baseline.wpm} wpm`, note: "too fast: target 130–165" },
+  { label: "eye contact", value: `${JAKE.start.eyePct}%`, note: "mostly the laptop: target ≥ 60%" },
+  { label: "speaker rating", value: String(jake.baseline.rating), note: `goal for the game: +150 → ${jake.goal.ratingTarget}` },
 ];
 
 const steps = [
