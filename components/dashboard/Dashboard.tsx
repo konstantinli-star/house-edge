@@ -46,6 +46,19 @@ export function Dashboard() {
         <TodayCard tasksToday={tasksToday} control={control} hasTask={Boolean(nextTask)} title={nextTask?.title} />
       </section>
 
+      <section className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-mono text-sm text-accent">final exam</h2>
+          <p className="mt-1 text-sm text-muted">
+            Live, under camera and microphone. Fillers ≤ {entry.goal.exam.maxFillersPerMin}/min, eye contact ≥{" "}
+            {entry.goal.exam.minEyeContactPct}%, pace {entry.goal.exam.paceMin}–{entry.goal.exam.paceMax} wpm.
+          </p>
+        </div>
+        <Link href="/exam" className="shrink-0 rounded-md border border-line px-4 py-2 text-center text-sm hover:bg-raised">
+          Go to the final exam
+        </Link>
+      </section>
+
       <section className="rounded-lg border border-line bg-surface p-5">
         <h2 className="mb-3 font-mono text-sm text-accent">rating history</h2>
         <RatingChart points={ratingHistory(entry, journal)} target={ratingTarget} />

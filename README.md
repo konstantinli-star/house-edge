@@ -16,7 +16,16 @@ A 30-day public-speaking game: you commit a stake on your own goal, an AI Proof 
 | M2 | Baseline: mic, transcript, filler/pace/pause metrics, Speaker Rating | ✅ |
 | M3 | Rules, 3-speech baseline with liveness phrase, goal, 18+ gate, tiers, Stripe test checkout, entry + test-mode ledger | ✅ verified end to end on the live site |
 | M4 | Daily tasks (adaptive difficulty, Elo rating), dashboard: streak, weekly goal + recovery, rating chart, payout forecast (simulated pool), community feed, reminders | ✅ |
-| M5–M8 | Final exam + payout screen, demo mode, safeguard pages, polish | planned |
+| M5 | Final exam (camera + mic, eye contact via MediaPipe, fullscreen, flags), settlement with the real payout function, result page with before/after, payout breakdown and calculator, one appeal per game | ✅ |
+| M6–M8 | Demo mode, safeguard pages, pricing, polish | planned |
+
+## Final exam
+
+`/exam` shows the thresholds first, then a camera check, then a 90-second take (minimum 60 s) in fullscreen with a random topic and liveness phrase. Win = fillers ≤ 3/min, eye contact ≥ 60%, pace 130–165 wpm, ≥ 60 s of speech, and ≥ 24 practice days (`lib/game/exam.ts`). Flags (left the tab, exited fullscreen, phrase not heard, face missing > 1/3 of the time, a second face) are stored with the attempt; a flagged win goes to review instead of paying out. In this test-mode build the exam can be taken any day; practice days count as they are.
+
+**Eye contact** (`lib/vision/gaze.ts`, `hooks/useGazeTracker.ts`): MediaPipe FaceLandmarker runs in the browser at ~10 fps. A frame counts as eye contact when the head is roughly frontal (nose near the face centre) and both irises are near the centre of the eye opening; frames without a face count as no contact. Only the percentage leaves the device.
+
+**Settlement** (`lib/game/settle.ts`, `/api/entry/settle`): the server re-runs the same exam rules and payout function on the measurements, updates the entry and writes the payout to the test-mode ledger. `/result/[id]` shows each criterion, before/after, the formula with the game's numbers, a what-if calculator and the appeal (`/api/entry/appeal`, lost → review, once).
 
 ## Speaker Rating (Elo)
 

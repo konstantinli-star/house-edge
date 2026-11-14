@@ -2,7 +2,7 @@
 // Deterministic per game, so everyone sees the same pool. Each player has a
 // planned quit day (or none); as the game clock moves, players drop out.
 
-import { OPEN_GAME_COMMISSION, settlePool, type PoolPlayer } from "./payout";
+import { OPEN_GAME_COMMISSION, settlePool, type PoolPlayer, type Settlement } from "./payout";
 import { seededRandom } from "./tasks";
 
 export type SimulatedPlayer = {
@@ -50,27 +50,42 @@ export type Forecast = {
 // "If you finish" forecast with the real payout function. Players who already
 // left count as not reaching the goal; of those still in, the most consistent
 // are projected to finish at the historical rate.
-export function payoutForecast(pool: SimulatedPlayer[], day: number, you: { stakeCents: number }): Forecast {
+// Pool outcomes as of `day`: players who left lose; of those still in, the most
+// consistent are projected to finish at the historical rate.
+function projectedPool(pool: SimulatedPlayer[], day: number) {
   const active = pool.filter((p) => p.quitDay === null || p.quitDay > day);
-  const projectedWinnersCount = Math.min(active.length, Math.round(pool.length * PROJECTED_FINISH_RATE));
-  const projectedWinners = new Set(
-    [...active].sort((a, b) => b.consistency - a.consistency).slice(0, projectedWinnersCount).map((p) => p.id),
+  const winnersCount = Math.min(active.length, Math.round(pool.length * PROJECTED_FINISH_RATE));
+  const winners = new Set(
+    [...active].sort((a, b) => b.consistency - a.consistency).slice(0, winnersCount).map((p) => p.id),
   );
+  const players: PoolPlayer[] = pool.map((p) => ({ id: p.id, stakeCents: p.stakeCents, won: winners.has(p.id) }));
+  return { players, active: active.length, winnersCount };
+}
 
-  const players: PoolPlayer[] = [
-    ...pool.map((p) => ({ id: p.id, stakeCents: p.stakeCents, won: projectedWinners.has(p.id) })),
-    { id: "you", stakeCents: you.stakeCents, won: true },
-  ];
-  const s = settlePool(players, OPEN_GAME_COMMISSION);
+// "If you finish" forecast with the real payout function.
+export function payoutForecast(pool: SimulatedPlayer[], day: number, you: { stakeCents: number }): Forecast {
+  const { players, active, winnersCount } = projectedPool(pool, day);
+  const all = [...players, { id: "you", stakeCents: you.stakeCents, won: true }];
+  const s = settlePool(all, OPEN_GAME_COMMISSION);
   return {
     payoutCents: s.payouts.you,
     stakeCents: you.stakeCents,
     bankCents: s.bankCents,
-    players: players.length,
-    active: active.length + 1,
-    projectedWinners: projectedWinnersCount + 1,
+    players: all.length,
+    active: active + 1,
+    projectedWinners: winnersCount + 1,
     commissionCents: s.commissionCents,
   };
+}
+
+export type FinalSettlement = Settlement & { yourPayoutCents: number; winners: number; players: number };
+
+// End of game: the simulated pool's final outcomes plus the player's real result.
+export function finalSettlement(pool: SimulatedPlayer[], days: number, you: { stakeCents: number; won: boolean }): FinalSettlement {
+  const { players, winnersCount } = projectedPool(pool, days);
+  const all = [...players, { id: "you", stakeCents: you.stakeCents, won: you.won }];
+  const s = settlePool(all, OPEN_GAME_COMMISSION);
+  return { ...s, yourPayoutCents: s.payouts.you ?? 0, winners: winnersCount + (you.won ? 1 : 0), players: all.length };
 }
 
 export type FeedItem = { day: number; text: string };

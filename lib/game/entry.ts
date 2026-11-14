@@ -2,9 +2,19 @@
 // Built the same way whether it is stored in Supabase or only in the browser.
 
 import { deriveGoal, type Baseline, type Goal } from "./baseline";
+import type { ExamInput, ExamOutcome } from "./exam";
+import type { RatingChange } from "./rating";
 import { KICKSTARTER, tierAvailable } from "./rules";
 
-export type LedgerLine = { kind: "stake_in" | "card_fee"; amountCents: number; testMode: true };
+export type LedgerLine = { kind: "stake_in" | "card_fee" | "payout"; amountCents: number; testMode: true };
+
+export type ExamRecord = {
+  input: ExamInput;
+  outcome: ExamOutcome;
+  rating: RatingChange;
+  topic: string;
+  takenAt: string;
+};
 
 export type Entry = {
   id: string;
@@ -16,6 +26,9 @@ export type Entry = {
   ledger: LedgerLine[];
   storage: "supabase" | "local";
   createdAt: string;
+  exam?: ExamRecord;
+  payoutCents?: number | null; // null while under review
+  appeal?: { reason: string; at: string };
 };
 
 export type StakeRequest = {

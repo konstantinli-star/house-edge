@@ -35,6 +35,8 @@ export const saveTakes = (takes: TakeSummary[]) => write(KEYS.takes, takes);
 
 export const loadEntries = () => read<Entry[]>(KEYS.entries, []);
 export const activeEntry = () => loadEntries().find((e) => e.status === "active") ?? null;
+export const findEntry = (id: string) => loadEntries().find((e) => e.id === id) ?? null;
+export const latestEntry = () => loadEntries().at(-1) ?? null;
 
 export function saveEntry(entry: Entry) {
   write(KEYS.entries, [...loadEntries().filter((e) => e.id !== entry.id), entry]);
