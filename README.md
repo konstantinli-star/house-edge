@@ -6,13 +6,15 @@ A 30-day public-speaking game: you commit a stake on your own goal, an AI Proof 
 
 > Test mode only. No real money moves. 18+.
 
+**Live:** https://house-edge-flax.vercel.app (no sign-up; open in Chrome or Edge for the microphone)
+
 ## Status
 
 | Milestone | Scope | State |
 |---|---|---|
-| M1 | Skeleton, landing, guest session, env setup | ✅ (deploy pending) |
+| M1 | Skeleton, landing, guest session, env setup, Vercel deploy | ✅ |
 | M2 | Baseline: mic, transcript, filler/pace/pause metrics, Speaker Rating | ✅ |
-| M3 | Rules, 3-speech baseline with liveness phrase, goal, 18+ gate, tiers, Stripe test checkout, entry + test-mode ledger | ✅ code · needs Stripe/Supabase keys to verify |
+| M3 | Rules, 3-speech baseline with liveness phrase, goal, 18+ gate, tiers, Stripe test checkout, entry + test-mode ledger | ✅ verified end to end on the live site |
 | M4 | Daily tasks (adaptive difficulty, Elo rating), dashboard: streak, weekly goal + recovery, rating chart, payout forecast (simulated pool), community feed, reminders | ✅ |
 | M5–M8 | Final exam + payout screen, demo mode, safeguard pages, polish | planned |
 
